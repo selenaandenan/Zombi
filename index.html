@@ -3,122 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZOMBIE CASINO</title>
+    <title>ZOMBIE CASINO - ULTIMATE</title>
+    <!-- Подключаем API Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* ================= ПЕРЕМЕННЫЕ И БАЗА ================= */
         :root {
             --bg: #0a0f0a;
-            --main: #39ff14; /* Токсичный зеленый */
+            --main: #39ff14; 
             --dark: #1a3b12;
             --text: #e0f2e0;
             --red: #ff3333;
+            --gold: #ffd700;
         }
         
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; user-select: none; }
         
         body {
             background-color: var(--bg);
             color: var(--text);
             min-height: 100vh;
             background-image: radial-gradient(circle at top right, #122910, transparent 60%);
+            padding-bottom: 30px;
             overflow-x: hidden;
         }
 
-        /* Шапка */
+        /* ================= ШАПКА ================= */
         .header {
             text-align: center;
             padding: 15px;
             border-bottom: 2px solid var(--dark);
-            box-shadow: 0 0 20px rgba(57, 255, 20, 0.1);
+            background: rgba(10, 15, 10, 0.9);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-
         .header h1 {
             color: var(--main);
             font-size: 22px;
             text-transform: uppercase;
             letter-spacing: 3px;
-            text-shadow: 0 0 10px var(--main);
-            animation: flicker 3s infinite alternate;
+            text-shadow: 0 0 10px var(--main), 0 0 20px var(--main);
         }
 
-        @keyframes flicker {
-            0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 10px var(--main), 0 0 20px var(--main); }
-            20%, 24%, 55% { text-shadow: none; opacity: 0.8; }
-        }
-
-        /* Верхняя панель с балансом */
+        /* ================= БАЛАНС И КНОПКИ ================= */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 15px;
-            background: rgba(26, 59, 18, 0.8);
+            padding: 12px 15px;
+            background: rgba(26, 59, 18, 0.9);
             border-bottom: 1px solid var(--main);
-            position: sticky;
-            top: 0;
-            z-index: 50;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
-
         .balance-info {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
+            color: #fff;
         }
-
         .balance-info span {
             color: var(--main);
-            font-size: 18px;
+            font-size: 20px;
             text-shadow: 0 0 8px var(--main);
         }
-
         .nav-btns button {
             background: transparent;
             border: 1px solid var(--main);
             color: var(--main);
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 11px;
-            margin-left: 5px;
+            font-size: 12px;
+            margin-left: 8px;
             font-weight: bold;
             text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .nav-btns button:active {
+            background: var(--main);
+            color: #000;
+            box-shadow: 0 0 15px var(--main);
         }
 
-        .nav-btns button:active { background: var(--main); color: #000; }
-
-        /* Сетка игр */
-        .games {
+        /* ================= СЕТКА ИГР ================= */
+        .games-grid {
             padding: 15px;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr;
             gap: 15px;
-            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
         }
-
         .game-card {
-            width: 100%;
-            max-width: 400px;
             background: var(--dark);
             border: 2px solid var(--main);
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 15px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2), inset 0 0 20px rgba(0,0,0,0.8);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.15), inset 0 0 20px rgba(0,0,0,0.8);
+            transition: transform 0.1s;
         }
-
         .game-card:active { transform: scale(0.98); }
-
-        .game-title { font-size: 18px; color: #fff; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 5px #fff; }
+        .game-icon { font-size: 40px; margin-bottom: 5px; filter: drop-shadow(0 0 10px var(--main)); }
+        .game-title { font-size: 18px; color: #fff; margin-bottom: 5px; text-transform: uppercase; }
         .game-price { color: var(--main); font-size: 14px; font-weight: bold; margin-bottom: 15px; }
-        .game-icon { font-size: 50px; margin-bottom: 10px; filter: drop-shadow(0 0 10px var(--main)); animation: float 2s ease-in-out infinite; }
         
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
         .game-btn {
             background: transparent;
             border: 2px solid var(--main);
@@ -128,36 +117,34 @@
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 8px;
             width: 100%;
-            box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
-            transition: all 0.2s;
+            transition: 0.2s;
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
         }
-
         .game-btn:active {
             background: var(--main);
             color: #000;
             box-shadow: 0 0 20px var(--main);
         }
 
-        /* Модальное окно (Анимация) */
+        /* ================= МОДАЛЬНОЕ ОКНО ================= */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            inset: 0;
             background: rgba(0, 0, 0, 0.95);
-            z-index: 100;
+            z-index: 1000;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
         }
-
         .modal.active { display: flex; }
-        .modal h2 { color: #fff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .modal h2 { color: #fff; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #fff; }
 
-        /* Спиннер (Кейсы) */
-        .spinner-box {
+        /* --- КЕЙСЫ --- */
+        .spinner-container {
             width: 300px;
             height: 100px;
             border: 2px solid var(--dark);
@@ -165,8 +152,8 @@
             position: relative;
             background: #000;
             border-radius: 10px;
+            box-shadow: 0 0 20px rgba(57,255,20,0.2);
         }
-
         .spinner-line {
             position: absolute;
             top: 50%;
@@ -177,14 +164,12 @@
             z-index: 10;
             box-shadow: 0 0 10px var(--main);
         }
-        
         .spinner-items {
             display: flex;
             height: 100%;
             align-items: center;
             transition: transform 4s cubic-bezier(0.1, 0.7, 0.1, 1);
         }
-
         .spinner-item {
             min-width: 100px;
             text-align: center;
@@ -193,10 +178,10 @@
             font-weight: bold;
         }
 
-        /* Рулетка */
-        .roulette-circle {
-            width: 120px;
-            height: 120px;
+        /* --- РУЛЕТКА / КОЛЕСО --- */
+        .wheel-circle {
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             border: 5px solid var(--dark);
             display: flex;
@@ -204,49 +189,116 @@
             align-items: center;
             font-size: 30px;
             color: var(--main);
-            box-shadow: 0 0 30px rgba(57, 255, 20, 0.3);
+            box-shadow: 0 0 30px rgba(57,255,20,0.3);
+            background: #000;
         }
-
-        .roulette-circle.spinning {
-            animation: spin 0.5s linear infinite;
+        .wheel-circle.spinning {
+            animation: spin 0.4s linear infinite;
             border-color: var(--main);
         }
-
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Результат */
+        /* --- МИННОЕ ПОЛЕ --- */
+        .mines-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 260px;
+            margin-bottom: 20px;
+        }
+        .mine-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #222;
+            border: 2px solid var(--main);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mine-cell:active { transform: scale(0.9); }
+        .mine-cell.revealed { background: var(--dark); border-color: #555; cursor: default; }
+        .mine-cell.bomb { background: var(--red); border-color: var(--red); }
+
+        /* --- МОНЕТКА --- */
+        .coin-display {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--gold);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 0 30px var(--gold);
+        }
+        .coin-display.flipping { animation: flip 0.4s linear infinite; }
+        @keyframes flip { 100% { transform: rotateY(360deg); } }
+
+        /* --- СЛОТЫ --- */
+        .slots-container {
+            display: flex;
+            gap: 10px;
+            background: #000;
+            padding: 20px;
+            border: 2px solid var(--main);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(57,255,20,0.3);
+        }
+        .slot-item {
+            font-size: 50px;
+            width: 70px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--dark);
+            border-radius: 10px;
+            border: 1px solid #555;
+        }
+
+        /* --- РЕЗУЛЬТАТ --- */
         .result {
             color: var(--main);
-            font-size: 24px;
-            margin-top: 20px;
+            font-size: 26px;
+            margin-top: 25px;
             text-shadow: 0 0 15px var(--main);
             opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.5s;
+            transform: scale(0.8);
+            transition: all 0.4s;
             text-align: center;
             font-weight: bold;
         }
-
         .result.lose { color: var(--red); text-shadow: 0 0 15px var(--red); }
         .result.show { opacity: 1; transform: scale(1); }
 
         .close-btn {
-            margin-top: 25px;
-            padding: 10px 20px;
+            margin-top: 30px;
+            padding: 12px 30px;
             background: transparent;
-            border: 1px solid #555;
+            border: 2px solid #555;
             color: #888;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.2s;
         }
+        .close-btn:active { border-color: #fff; color: #fff; }
     </style>
 </head>
 <body>
+    <!-- Шапка -->
     <div class="header">
         <h1>ZOMBIE CASINO</h1>
     </div>
 
+    <!-- Баланс и кнопки профиля -->
     <div class="top-bar">
         <div class="balance-info">БАЛАНС: <span id="balance-val">0</span> ⭐</div>
         <div class="nav-btns">
@@ -255,152 +307,223 @@
         </div>
     </div>
 
-    <div class="games">
-        <!-- Дешевый кейс -->
+    <!-- Сетка игр -->
+    <div class="games-grid">
+        <!-- 1. Дешевый кейс -->
         <div class="game-card">
             <div class="game-icon">☣️</div>
             <div class="game-title">Гнилой кейс</div>
-            <div class="game-price">Ставка: 25 ⭐ (Шанс до 100⭐)</div>
+            <div class="game-price">Ставка: 25 ⭐</div>
             <button class="game-btn" onclick="playCase('cheap', 25)">Открыть</button>
         </div>
 
-        <!-- Дорогой кейс -->
+        <!-- 2. Дорогой кейс -->
         <div class="game-card">
             <div class="game-icon">🧬</div>
             <div class="game-title">Мутант кейс</div>
-            <div class="game-price">Ставка: 150 ⭐ (Шанс до 500⭐)</div>
+            <div class="game-price">Ставка: 150 ⭐</div>
             <button class="game-btn" onclick="playCase('expensive', 150)">Открыть</button>
         </div>
 
-        <!-- Рулетка -->
+        <!-- 3. Рулетка -->
         <div class="game-card">
             <div class="game-icon">🎡</div>
             <div class="game-title">Зомби-Рулетка</div>
-            <div class="game-price">Ставка: 50 ⭐ (Множители x0, x2, x3)</div>
+            <div class="game-price">Ставка: 50 ⭐</div>
             <button class="game-btn" onclick="playRoulette(50)">Крутить</button>
+        </div>
+
+        <!-- 4. Колесо Фортуны -->
+        <div class="game-card">
+            <div class="game-icon">🎯</div>
+            <div class="game-title">Колесо Фортуны</div>
+            <div class="game-price">Ставка: 100 ⭐</div>
+            <button class="game-btn" onclick="playWheel(100)">Крутить</button>
+        </div>
+
+        <!-- 5. Минное поле -->
+        <div class="game-card">
+            <div class="game-icon">💣</div>
+            <div class="game-title">Минное поле</div>
+            <div class="game-price">Ставка: 30 ⭐</div>
+            <button class="game-btn" onclick="playMines(30)">Играть</button>
+        </div>
+
+        <!-- 6. Монетка -->
+        <div class="game-card">
+            <div class="game-icon">🪙</div>
+            <div class="game-title">Зомби-Монетка</div>
+            <div class="game-price">Ставка: 20 ⭐</div>
+            <button class="game-btn" onclick="playCoinflip(20)">Подбросить</button>
+        </div>
+
+        <!-- 7. Слоты -->
+        <div class="game-card">
+            <div class="game-icon">🎰</div>
+            <div class="game-title">Слоты 777</div>
+            <div class="game-price">Ставка: 40 ⭐</div>
+            <button class="game-btn" onclick="playSlots(40)">Крутить</button>
         </div>
     </div>
 
-    <!-- Модальное окно -->
+    <!-- Модальное окно для игр -->
     <div class="modal" id="game-modal">
-        <h2 id="modal-title">КРУТИМ...</h2>
+        <h2 id="modal-title">ИГРА...</h2>
         
-        <div class="spinner-box" id="case-spinner" style="display:none;">
+        <!-- Элементы для разных игр -->
+        <div class="spinner-container" id="case-spinner" style="display:none;">
             <div class="spinner-line"></div>
             <div class="spinner-items" id="spinner-items"></div>
         </div>
 
-        <div class="roulette-circle" id="roulette-circle" style="display:none;">?</div>
+        <div class="wheel-circle" id="wheel-circle" style="display:none;">?</div>
+
+        <div class="mines-grid" id="mines-grid" style="display:none;"></div>
+
+        <div class="coin-display" id="coin-display" style="display:none;">🪙</div>
+
+        <div class="slots-container" id="slots-container" style="display:none;">
+            <div class="slot-item" id="slot-1">❓</div>
+            <div class="slot-item" id="slot-2">❓</div>
+            <div class="slot-item" id="slot-3">❓</div>
+        </div>
 
         <div class="result" id="win-text">+0 ⭐</div>
         <button class="close-btn" onclick="closeModal()">ЗАКРЫТЬ</button>
     </div>
 
     <script>
+        // ================= ИНИЦИАЛИЗАЦИЯ =================
         let tg = window.Telegram.WebApp;
         tg.ready(); 
         tg.expand();
         tg.setHeaderColor('#0a0f0a');
         tg.setBackgroundColor('#0a0f0a');
 
-        // Стартовый баланс (бот потом пришлет реальный)
+        // Локальный баланс (для визуала, реальный в боте)
         let currentBalance = 500; 
         document.getElementById('balance-val').innerText = currentBalance;
 
-        // Отправка команд в бота (Пополнить/Вывод)
+        // Функция отправки запросов в бот
         function sendAction(action) {
             tg.sendData(JSON.stringify({ action: action }));
         }
 
-        // --- ИГРА: КЕЙСЫ ---
-        function playCase(caseId, price) {
-            if (currentBalance < price) {
-                tg.showAlert("❌ Недостаточно звезд на балансе!");
-                return;
-            }
-
-            // Отправляем боту инфу, что игрок крутит кейс
-            tg.sendData(JSON.stringify({ action: "open_case", case_id: caseId, price: price }));
-
-            // Настройка окна под кейс
-            document.getElementById('modal-title').innerText = "КРУТИМ КЕЙС...";
-            document.getElementById('case-spinner').style.display = 'block';
-            document.getElementById('roulette-circle').style.display = 'none';
-            
-            startSpinAnimation(caseId, price);
+        // Скрыть все элементы игр перед новым запуском
+        function hideAllElements() {
+            document.getElementById('case-spinner').style.display = 'none';
+            document.getElementById('wheel-circle').style.display = 'none';
+            document.getElementById('mines-grid').style.display = 'none';
+            document.getElementById('coin-display').style.display = 'none';
+            document.getElementById('slots-container').style.display = 'none';
+            document.getElementById('win-text').classList.remove('show', 'lose');
         }
 
-        function startSpinAnimation(caseId, price) {
+        // ================= 1, 2: КЕЙСЫ =================
+        function playCase(caseId, price) {
+            if (currentBalance < price) { tg.showAlert("❌ Мало звезд!"); return; }
+            
+            // Отправляем боту запрос
+            tg.sendData(JSON.stringify({ action: "open_case", case_id: caseId, price: price }));
+
+            hideAllElements();
+            document.getElementById('modal-title').innerText = "КРУТИМ КЕЙС...";
+            document.getElementById('case-spinner').style.display = 'block';
+            
             const modal = document.getElementById('game-modal');
             const itemsContainer = document.getElementById('spinner-items');
             const winText = document.getElementById('win-text');
             
             modal.classList.add('active');
-            winText.classList.remove('show', 'lose');
-
             itemsContainer.style.transition = 'none';
             itemsContainer.style.transform = 'translateX(0)';
             itemsContainer.innerHTML = '';
 
-            // Возможные призы
+            // Возможные призы для визуала
             let possibleWins = caseId === 'cheap' ? [15, 25, 50, 100] : [50, 100, 500];
             
-            // Генерируем 50 карточек для анимации
+            // Забиваем 50 элементов для анимации
             for (let i = 0; i < 50; i++) {
-                let randomWin = possibleWins[Math.floor(Math.random() * possibleWins.length)];
-                let div = document.createElement('div');
-                div.className = 'spinner-item';
-                div.innerText = randomWin + '⭐';
-                itemsContainer.appendChild(div);
+                let w = possibleWins[Math.floor(Math.random() * possibleWins.length)];
+                itemsContainer.innerHTML += `<div class="spinner-item">${w}⭐</div>`;
             }
 
-            // Запуск прокрутки через 0.1 сек
+            // Запуск анимации
             setTimeout(() => {
                 itemsContainer.style.transition = 'transform 4s cubic-bezier(0.1, 0.7, 0.1, 1)';
                 itemsContainer.style.transform = `translateX(-${35 * 100}px)`;
-
-                // Когда прокрутка остановится (через 4 сек)
+                
                 setTimeout(() => {
                     let finalWin = possibleWins[Math.floor(Math.random() * possibleWins.length)];
                     winText.innerText = `ВЫБИЛ: +${finalWin} ⭐`;
                     winText.classList.add('show');
                     
                     tg.HapticFeedback.notificationOccurred('success');
-                    
-                    // Обновляем баланс на сайте
                     currentBalance = currentBalance - price + finalWin;
                     document.getElementById('balance-val').innerText = currentBalance;
                 }, 4000);
             }, 100);
         }
 
-        // --- ИГРА: РУЛЕТКА ---
+        // ================= 3: РУЛЕТКА =================
         function playRoulette(price) {
-            if (currentBalance < price) {
-                tg.showAlert("❌ Недостаточно звезд!");
-                return;
-            }
-
+            if (currentBalance < price) { tg.showAlert("❌ Мало звезд!"); return; }
             tg.sendData(JSON.stringify({ action: "roulette", price: price }));
 
-            document.getElementById('modal-title').innerText = "КРУТИМ РУЛЕТКУ...";
-            document.getElementById('case-spinner').style.display = 'none';
-            document.getElementById('roulette-circle').style.display = 'flex';
+            hideAllElements();
+            document.getElementById('modal-title').innerText = "РУЛЕТКА...";
+            document.getElementById('wheel-circle').style.display = 'flex';
             
             const modal = document.getElementById('game-modal');
-            const circle = document.getElementById('roulette-circle');
+            const circle = document.getElementById('wheel-circle');
             const winText = document.getElementById('win-text');
             
             modal.classList.add('active');
-            winText.classList.remove('show', 'lose');
             circle.classList.add('spinning');
             circle.innerText = "?";
 
             setTimeout(() => {
                 circle.classList.remove('spinning');
+                const result = [0, 2, 3][Math.floor(Math.random() * 3)]; 
                 
-                // Рандом x0, x2, x3
-                const multipliers = [0, 2, 3];
+                if (result === 0) {
+                    circle.innerText = "X0";
+                    winText.innerText = "ВЫ ПРОИГРАЛИ";
+                    winText.classList.add('lose', 'show');
+                    currentBalance -= price;
+                    tg.HapticFeedback.notificationOccurred('error');
+                } else {
+                    circle.innerText = `X${result}`;
+                    let win = price * result;
+                    winText.innerText = `+${win} ⭐`;
+                    winText.classList.add('show');
+                    currentBalance = currentBalance - price + win;
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+                document.getElementById('balance-val').innerText = currentBalance;
+            }, 3000);
+        }
+
+        // ================= 4: КОЛЕСО ФОРТУНЫ =================
+        function playWheel(price) {
+            if (currentBalance < price) { tg.showAlert("❌ Мало звезд!"); return; }
+            tg.sendData(JSON.stringify({ action: "wheel", price: price }));
+
+            hideAllElements();
+            document.getElementById('modal-title').innerText = "КОЛЕСО ФОРТУНЫ...";
+            document.getElementById('wheel-circle').style.display = 'flex';
+            
+            const modal = document.getElementById('game-modal');
+            const circle = document.getElementById('wheel-circle');
+            const winText = document.getElementById('win-text');
+            
+            modal.classList.add('active');
+            circle.classList.add('spinning');
+            circle.innerText = "?";
+
+            setTimeout(() => {
+                circle.classList.remove('spinning');
+                const multipliers = [0, 1.5, 3, 10];
                 const result = multipliers[Math.floor(Math.random() * multipliers.length)];
                 
                 if (result === 0) {
@@ -410,16 +533,153 @@
                     currentBalance -= price;
                 } else {
                     circle.innerText = `X${result}`;
-                    let win = price * result;
+                    let win = Math.floor(price * result);
                     winText.innerText = `+${win} ⭐`;
                     winText.classList.add('show');
                     currentBalance = currentBalance - price + win;
                 }
-                
-                tg.HapticFeedback.notificationOccurred(result === 0 ? 'error' : 'success');
                 document.getElementById('balance-val').innerText = currentBalance;
-                
             }, 3000);
+        }
+
+        // ================= 5: МИННОЕ ПОЛЕ =================
+        function playMines(price) {
+            if (currentBalance < price) { tg.showAlert("❌ Мало звезд!"); return; }
+            
+            hideAllElements();
+            document.getElementById('modal-title').innerText = "МИННОЕ ПОЛЕ";
+            const grid = document.getElementById('mines-grid');
+            grid.style.display = 'grid';
+            grid.innerHTML = '';
+            
+            const modal = document.getElementById('game-modal');
+            const winText = document.getElementById('win-text');
+            modal.classList.add('active');
+            winText.innerText = "Выберите клетку!";
+            winText.classList.add('show');
+
+            // Создаем 9 клеток
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'mine-cell';
+                cell.innerText = "?";
+                
+                cell.onclick = () => {
+                    // Блокируем клики
+                    document.querySelectorAll('.mine-cell').forEach(c => c.onclick = null);
+                    
+                    // Визуальный рандом (60% на проигрыш)
+                    const isBomb = Math.random() < 0.60;
+                    
+                    if (isBomb) {
+                        cell.classList.add('bomb');
+                        cell.innerText = "💀";
+                        winText.innerText = "БУМ! ВЫ ПРОИГРАЛИ";
+                        winText.classList.add('lose', 'show');
+                        currentBalance -= price;
+                        tg.HapticFeedback.notificationOccurred('error');
+                    } else {
+                        cell.classList.add('revealed');
+                        cell.innerText = "💎";
+                        let win = Math.floor(price * 2.5);
+                        winText.innerText = `+${win} ⭐`;
+                        winText.classList.add('show');
+                        currentBalance = currentBalance - price + win;
+                        tg.HapticFeedback.notificationOccurred('success');
+                    }
+                    document.getElementById('balance-val').innerText = currentBalance;
+                };
+                grid.appendChild(cell);
+            }
+        }
+
+        // ================= 6: МОНЕТКА =================
+        function playCoinflip(price) {
+            if (currentBalance < price) { tg.showAlert("❌ Мало звезд!"); return; }
+            
+            hideAllElements();
+            document.getElementById('modal-title').innerText = "МОНЕТКА...";
+            document.getElementById('coin-display').style.display = 'flex';
+            
+            const modal = document.getElementById('game-modal');
+            const coin = document.getElementById('coin-display');
+            const winText = document.getElementById('win-text');
+            
+            modal.classList.add('active');
+            coin.classList.add('flipping');
+            coin.innerText = "🪙";
+
+            setTimeout(() => {
+                coin.classList.remove('flipping');
+                const isWin = Math.random() < 0.45;
+                
+                if (isWin) {
+                    coin.innerText = "ОРЕЛ";
+                    let win = price * 2;
+                    winText.innerText = `+${win} ⭐`;
+                    winText.classList.add('show');
+                    currentBalance = currentBalance - price + win;
+                } else {
+                    coin.innerText = "РЕШКА";
+                    winText.innerText = "ВЫ ПРОИГРАЛИ";
+                    winText.classList.add('lose', 'show');
+                    currentBalance -= price;
+                }
+                document.getElementById('balance-val').innerText = currentBalance;
+            }, 2000);
+        }
+
+        // ================= 7: СЛОТЫ =================
+        function playSlots(price) {
+            if (currentBalance < price) { tg.showAlert("❌ Мало звезд!"); return; }
+            
+            hideAllElements();
+            document.getElementById('modal-title').innerText = "СЛОТЫ 777...";
+            document.getElementById('slots-container').style.display = 'flex';
+            
+            const modal = document.getElementById('game-modal');
+            const s1 = document.getElementById('slot-1');
+            const s2 = document.getElementById('slot-2');
+            const s3 = document.getElementById('slot-3');
+            const winText = document.getElementById('win-text');
+            const items = ["🍒", "🍋", "💎", "7️⃣", "👾"];
+            
+            modal.classList.add('active');
+
+            // Быстрая смена картинок (эффект прокрутки)
+            let spinCount = 0;
+            const spinInterval = setInterval(() => {
+                s1.innerText = items[Math.floor(Math.random() * items.length)];
+                s2.innerText = items[Math.floor(Math.random() * items.length)];
+                s3.innerText = items[Math.floor(Math.random() * items.length)];
+                spinCount++;
+                
+                if (spinCount > 15) {
+                    clearInterval(spinInterval);
+                    
+                    // Визуальный рандом после остановки
+                    // Шанс на 3 одинаковых очень мал (сделаем для визуала)
+                    const winChance = Math.random();
+                    
+                    if (winChance < 0.10) { // 10% на джекпот
+                        s1.innerText = "7️⃣"; s2.innerText = "7️⃣"; s3.innerText = "7️⃣";
+                        let win = price * 10;
+                        winText.innerText = `ДЖЕКПОТ x10: +${win} ⭐`;
+                        currentBalance = currentBalance - price + win;
+                    } else if (winChance < 0.30) { // 20% на x2
+                        s1.innerText = "💎"; s2.innerText = "💎"; s3.innerText = "💎";
+                        let win = price * 2;
+                        winText.innerText = `ВЫИГРЫШ x2: +${win} ⭐`;
+                        currentBalance = currentBalance - price + win;
+                    } else {
+                        winText.innerText = "ВЫ ПРОИГРАЛИ";
+                        winText.classList.add('lose');
+                        currentBalance -= price;
+                    }
+                    winText.classList.add('show');
+                    document.getElementById('balance-val').innerText = currentBalance;
+                }
+            }, 100);
         }
 
         // Закрыть окно
@@ -427,7 +687,5 @@
             document.getElementById('game-modal').classList.remove('active');
         }
     </script>
-</body>
-</html>
 </body>
 </html>
