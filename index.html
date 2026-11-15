@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZOMBIE CASINO</title>
+    <!-- ОБЯЗАТЕЛЬНО: скрипт Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -11,114 +12,326 @@
             --main-green: #39ff14; 
             --dark-green: #1a3b12; 
             --text-color: #e0f2e0;
+            --danger-red: #ff3333;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', monospace; }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
             background-image: radial-gradient(circle at top right, #122910, transparent 60%);
+            overflow-x: hidden;
         }
-        .header { text-align: center; padding: 20px; border-bottom: 2px solid var(--dark-green); }
-        .header h1 { color: var(--main-green); font-size: 24px; text-transform: uppercase; text-shadow: 0 0 10px var(--main-green); }
-        .balance-bar { text-align: center; padding: 15px; background: rgba(26, 59, 18, 0.5); font-size: 18px; font-weight: bold; }
-        .balance-bar span { color: var(--main-green); font-size: 22px; text-shadow: 0 0 8px var(--main-green); }
-        
-        .cases-container { padding: 20px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
-        .case-card {
-            width: 100%; max-width: 400px; background: var(--dark-green);
-            border: 2px solid var(--main-green); border-radius: 10px;
-            padding: 20px; text-align: center; cursor: pointer;
-            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
-        }
-        .case-card:active { transform: scale(0.98); }
-        .case-title { font-size: 20px; color: #fff; margin-bottom: 5px; text-transform: uppercase; }
-        .case-price { color: var(--main-green); font-size: 16px; font-weight: bold; margin-bottom: 15px; }
-        .case-img { font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 10px var(--main-green)); animation: float 2s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .case-btn {
-            background: transparent; border: 2px solid var(--main-green); color: var(--main-green);
-            padding: 12px 30px; font-size: 16px; font-weight: bold; text-transform: uppercase;
-            cursor: pointer; border-radius: 5px; width: 100%; transition: all 0.2s;
-        }
-        .case-btn:active { background: var(--main-green); color: #000; }
 
-        /* Модальное окно */
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); z-index: 100; flex-direction: column; justify-content: center; align-items: center; }
+        .header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid var(--dark-green);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.1);
+        }
+
+        .header h1 {
+            color: var(--main-green);
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--main-green);
+        }
+
+        .balance-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(26, 59, 18, 0.8);
+            border-bottom: 1px solid var(--main-green);
+            font-size: 16px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .balance-bar span { color: var(--main-green); font-size: 20px; text-shadow: 0 0 8px var(--main-green); }
+
+        .balance-bar button {
+            background: transparent; border: 1px solid var(--main-green); color: var(--main-green);
+            padding: 5px 10px; border-radius: 5px; cursor: pointer; font-family: inherit;
+        }
+
+        /* Игровое поле */
+        .games-container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .game-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--dark-green);
+            border: 2px solid var(--main-green);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2), inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .game-card:active { transform: scale(0.98); }
+
+        .game-title {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px #fff;
+        }
+
+        .game-price {
+            color: var(--main-green);
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .game-img {
+            font-size: 50px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px var(--main-green));
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .game-btn {
+            background: transparent;
+            border: 2px solid var(--main-green);
+            color: var(--main-green);
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .game-btn:hover, .game-btn:active {
+            background: var(--main-green);
+            color: #000;
+            box-shadow: 0 0 20px var(--main-green);
+        }
+
+        /* Модальное окно (Анимация) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
         .modal.active { display: flex; }
-        .spinner-container { width: 300px; height: 150px; border: 2px solid var(--dark-green); overflow: hidden; position: relative; background: #000; border-radius: 10px; }
-        .spinner-line { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--main-green); transform: translateY(-50%); z-index: 10; box-shadow: 0 0 10px var(--main-green); }
-        .spinner-items { display: flex; height: 100%; align-items: center; transition: transform 3s cubic-bezier(0.1, 0.7, 0.1, 1); }
-        .spinner-item { min-width: 100px; text-align: center; font-size: 30px; color: var(--main-green); font-weight: bold; }
-        .win-text { color: var(--main-green); font-size: 30px; margin-top: 20px; text-shadow: 0 0 15px var(--main-green); opacity: 0; transform: scale(0.5); transition: all 0.5s; }
+
+        .modal h2 { color: #fff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Спиннер (Кейсы) */
+        .spinner-container {
+            width: 300px;
+            height: 120px;
+            border: 2px solid var(--dark-green);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.2);
+            background: #000;
+            border-radius: 10px;
+        }
+
+        .spinner-line {
+            position: absolute;
+            top: 50%;
+            left: 0; right: 0;
+            height: 2px;
+            background: var(--main-green);
+            transform: translateY(-50%);
+            z-index: 10;
+            box-shadow: 0 0 10px var(--main-green);
+        }
+        
+        .spinner-items {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            transition: transform 4s cubic-bezier(0.1, 0.7, 0.1, 1);
+        }
+
+        .spinner-item {
+            min-width: 100px;
+            text-align: center;
+            font-size: 24px;
+            color: var(--main-green);
+            font-weight: bold;
+        }
+
+        /* Рулетка */
+        .roulette-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid var(--dark-green);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            color: var(--main-green);
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.3);
+            transition: transform 0.5s;
+        }
+
+        .roulette-circle.spinning {
+            animation: spin 0.5s linear infinite;
+            border-color: var(--main-green);
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Результат */
+        .win-text {
+            color: var(--main-green);
+            font-size: 28px;
+            margin-top: 20px;
+            text-shadow: 0 0 15px var(--main-green);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s;
+            text-align: center;
+        }
+
+        .lose-text {
+            color: var(--danger-red);
+            text-shadow: 0 0 15px var(--danger-red);
+        }
+
         .win-text.show { opacity: 1; transform: scale(1); }
-        .close-modal { margin-top: 30px; padding: 10px 20px; background: transparent; border: 1px solid #555; color: #888; border-radius: 5px; }
+
+        .close-modal {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid #555;
+            color: #888;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: inherit;
+        }
     </style>
 </head>
 <body>
-    <div class="header"><h1>ZOMBIE CASINO</h1></div>
-    <div class="balance-bar">БАЛАНС: <span id="balance-val">0</span> ⭐</div>
-    <div class="cases-container" id="cases-container"></div>
+    <div class="header">
+        <h1>ZOMBIE CASINO</h1>
+    </div>
 
-    <div class="modal" id="spin-modal">
-        <h2 style="color: #fff; margin-bottom: 20px;">КРУТИМ...</h2>
-        <div class="spinner-container">
+    <div class="balance-bar">
+        БАЛАНС: <span id="balance-val">0</span> ⭐
+        <button onclick="requestTopup()">+ ПОПОЛНИТЬ</button>
+    </div>
+
+    <div class="games-container">
+        <!-- Кейсы -->
+        <div class="game-card">
+            <div class="game-img">☣️</div>
+            <div class="game-title">Гнилой кейс</div>
+            <div class="game-price">25 ⭐ (Шанс до 100⭐)</div>
+            <button class="game-btn" onclick="playCase('cheap', 25)">Открыть</button>
+        </div>
+
+        <div class="game-card">
+            <div class="game-img">🧬</div>
+            <div class="game-title">Мутант кейс</div>
+            <div class="game-price">150 ⭐ (Шанс до 500⭐)</div>
+            <button class="game-btn" onclick="playCase('expensive', 150)">Открыть</button>
+        </div>
+
+        <!-- Рулетка -->
+        <div class="game-card">
+            <div class="game-img">🎡</div>
+            <div class="game-title">Зомби-Рулетка</div>
+            <div class="game-price">50 ⭐ (Шанс x2, x3, x0)</div>
+            <button class="game-btn" onclick="playRoulette(50)">Крутить</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal" id="game-modal">
+        <h2 id="modal-title">КРУТИМ...</h2>
+        
+        <!-- Для кейсов -->
+        <div class="spinner-container" id="case-spinner" style="display:none;">
             <div class="spinner-line"></div>
             <div class="spinner-items" id="spinner-items"></div>
         </div>
+
+        <!-- Для рулетки -->
+        <div class="roulette-circle" id="roulette-circle" style="display:none;">?</div>
+
         <div class="win-text" id="win-text">+0 ⭐</div>
         <button class="close-modal" onclick="closeModal()">ЗАКРЫТЬ</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.ready(); tg.expand();
+        tg.ready(); 
+        tg.expand();
+        tg.setHeaderColor('#0a0f0a');
+        tg.setBackgroundColor('#0a0f0a');
 
-        let currentBalance = 500; // Для визуального теста (в реале бот присылает)
+        // Баланс для визуала (в реальности бот присылает актуальный)
+        let currentBalance = parseInt(tg.initDataUnsafe?.user?.id) ? 500 : 500; 
         document.getElementById('balance-val').innerText = currentBalance;
 
-        const cases = [
-            { id: "cheap", title: "Гнилой кейс", price: 25, icon: "☣️" },
-            { id: "expensive", title: "Мутант кейс", price: 150, icon: "🧬" }
-        ];
-
-        const container = document.getElementById('cases-container');
-        cases.forEach(c => {
-            const card = document.createElement('div');
-            card.className = 'case-card';
-            card.innerHTML = `
-                <div class="case-img">${c.icon}</div>
-                <div class="case-title">${c.title}</div>
-                <div class="case-price">${c.price} ⭐</div>
-                <button class="case-btn" onclick="openCase('${c.id}', ${c.price})">Открыть</button>
-            `;
-            container.appendChild(card);
-        });
-
-        function openCase(caseId, price) {
+        // --- КЕЙСЫ ---
+        function playCase(caseId, price) {
             if (currentBalance < price) {
                 tg.showAlert("❌ Недостаточно звезд!");
                 return;
             }
 
-            // Отправляем данные в бота (Python)
-            tg.sendData(JSON.stringify({
-                action: "open_case",
-                case_id: caseId,
-                price: price
-            }));
+            // Отправляем боту
+            tg.sendData(JSON.stringify({ action: "open_case", case_id: caseId, price: price }));
 
-            // Запускаем визуальную анимацию
+            // Анимация
+            document.getElementById('modal-title').innerText = "КРУТИМ КЕЙС...";
+            document.getElementById('case-spinner').style.display = 'block';
+            document.getElementById('roulette-circle').style.display = 'none';
+            
             startSpinAnimation(caseId, price);
         }
 
         function startSpinAnimation(caseId, price) {
-            const modal = document.getElementById('spin-modal');
+            const modal = document.getElementById('game-modal');
             const itemsContainer = document.getElementById('spinner-items');
             const winText = document.getElementById('win-text');
             
             modal.classList.add('active');
             winText.classList.remove('show');
+            winText.classList.remove('lose-text');
 
             itemsContainer.style.transition = 'none';
             itemsContainer.style.transform = 'translateX(0)';
@@ -135,23 +348,81 @@
             }
 
             setTimeout(() => {
-                itemsContainer.style.transition = 'transform 3s cubic-bezier(0.1, 0.7, 0.1, 1)';
+                itemsContainer.style.transition = 'transform 4s cubic-bezier(0.1, 0.7, 0.1, 1)';
                 itemsContainer.style.transform = `translateX(-${35 * 100}px)`;
 
                 setTimeout(() => {
+                    // Визуальный результат (бот пришлет точный в чат)
                     let finalWin = possibleWins[Math.floor(Math.random() * possibleWins.length)];
                     winText.innerText = `ВЫБИЛ: +${finalWin} ⭐`;
                     winText.classList.add('show');
-                    
                     tg.HapticFeedback.notificationOccurred('success');
+                    
                     currentBalance = currentBalance - price + finalWin;
                     document.getElementById('balance-val').innerText = currentBalance;
-                }, 3000);
+                }, 4000);
             }, 100);
         }
 
+        // --- РУЛЕТКА ---
+        function playRoulette(price) {
+            if (currentBalance < price) {
+                tg.showAlert("❌ Недостаточно звезд!");
+                return;
+            }
+
+            // Отправляем боту
+            tg.sendData(JSON.stringify({ action: "roulette", price: price }));
+
+            document.getElementById('modal-title').innerText = "КРУТИМ РУЛЕТКУ...";
+            document.getElementById('case-spinner').style.display = 'none';
+            document.getElementById('roulette-circle').style.display = 'flex';
+            
+            const modal = document.getElementById('game-modal');
+            const circle = document.getElementById('roulette-circle');
+            const winText = document.getElementById('win-text');
+            
+            modal.classList.add('active');
+            winText.classList.remove('show');
+            winText.classList.remove('lose-text');
+            circle.classList.add('spinning');
+            circle.innerText = "?";
+
+            setTimeout(() => {
+                circle.classList.remove('spinning');
+                
+                // Визуальный рандом для рулетки (x0, x2, x3)
+                const multipliers = [0, 2, 3];
+                const result = multipliers[Math.floor(Math.random() * multipliers.length)];
+                
+                if (result === 0) {
+                    circle.innerText = "X0";
+                    circle.style.color = "var(--danger-red)";
+                    winText.innerText = "ВЫ ПРОИГРАЛИ";
+                    winText.classList.add('lose-text');
+                    currentBalance -= price;
+                } else {
+                    circle.innerText = `X${result}`;
+                    circle.style.color = "var(--main-green)";
+                    let win = price * result;
+                    winText.innerText = `+${win} ⭐`;
+                    currentBalance = currentBalance - price + win;
+                }
+                
+                winText.classList.add('show');
+                tg.HapticFeedback.notificationOccurred(result === 0 ? 'error' : 'success');
+                document.getElementById('balance-val').innerText = currentBalance;
+                
+            }, 3000);
+        }
+
+        // --- ПОПОЛНЕНИЕ ---
+        function requestTopup() {
+            tg.sendData(JSON.stringify({ action: "topup" }));
+        }
+
         function closeModal() {
-            document.getElementById('spin-modal').classList.remove('active');
+            document.getElementById('game-modal').classList.remove('active');
         }
     </script>
 </body>
